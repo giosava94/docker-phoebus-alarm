@@ -187,12 +187,12 @@ If you deploy your service on a different host from the one running the client y
 
 Moreover update the phoebus client `setting.ini`'s properties:
 
-- org.phoebus.applications.alarm.logging.ui/service_uri = http://<host-name>:8080
-- org.phoebus.applications.alarm/server=<host-name>:9092
+- org.phoebus.applications.alarm.logging.ui/service_uri = http://\<host-name>:8080
+- org.phoebus.applications.alarm/server=\<host-name>:9092
 
 If you use a different topic from accelerator changes the phoebus client `settings.ini` property:
 
-- org.phoebus.applications.alarm/config_name=<topic>
+- org.phoebus.applications.alarm/config_name=\<topic>
 
 > If you change ports number remember to apply changes to all services and to the client.
 
