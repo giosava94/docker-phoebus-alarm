@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='utf8'?>
+<component name="Example Component">
+    <guidance>
+        <title>Example title</title>
+        <details>Example description.</details>
+    </guidance>
+    <pv name="myioc:test">
+        <enabled>true</enabled>
+        <description>*Example</description>
+        <latching>false</latching>
+        <annunciating>true</annunciating>
+    </pv>
+</component>

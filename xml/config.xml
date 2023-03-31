@@ -1,0 +1,4 @@
+<?xml version='1.0' encoding='utf8'?>
+<config name="accelerator">
+    <xi:include href="/alarm-server/xml/example.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+</config>

@@ -1,0 +1,9 @@
+version: '3'
+services:
+  alarm-server:
+    image: giosava94/phoebus-alarm-server:4.7.1
+    container_name: alarm-server
+    command: -noshell
+    volumes:
+      - ./xml:/alarm-server/xml
+    network_mode: "host"
