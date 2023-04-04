@@ -38,14 +38,15 @@ In this repository we also provide three docker-compose templates as reference:
 The last provide a complete example of a basic phoebus alarm system with an alarm-logger and an alarm-server. Here the list of the services present in the template and what they do:
 
 - **zookeeper**: Service for maintaining configuration information, naming, providing distributed synchronization, and providing group services. Needed by kafka.
-- **broker (Kafka)**: Kafka instantiation. Service to notify PV alarm changes. It makes use of topics to split communications. Initialized with the correct topic at startup.
-- **kafka-init**: It generates the kafka topics needed by the alarm-server and the alarm-logger and then expires.
+- **broker (Kafka)**: Kafka instantiation. Service to notify PV alarm changes. It makes use of topics to split communications. Initialized with the correct topic at startup. It also generates the kafka topics needed by the alarm-server and the alarm-logger.
 - **alarm-server**: Service to monitor PV changes. It uses the broker service to inspect PV changes. It uses the corresponding xml configuration to generate the alarm-tree. _Console_ topic. To allow the server to read PVs network mode must be _host_.
 - **elasticsearch**: Service to manage indices creation.
 - **kibana**: _(Optional)_ Separated UI mainly used to inspect elasticsearch indices.
 - **alarm-logger**: Service to log PV history through elasticsearch indices. It uses the broker service to inspect PV changes.
 
 > When starting for the first time the services it is necessary to import into the alarm-servers the xml configurations. See [Import XML configuration](#import-xml-configuration).
+
+> The elasticsearch server stores in the `/usr/share/elasticsearch/data` folder the indices and the alarm histories. Make a backup of this folder to not lose alarm histories.
 
 # Usage
 
@@ -109,10 +110,26 @@ Consequently remember to:
 
 - Give a new name to the service and the container name.
 - Add the `-topic <topic>` line to the `command` compose property.
-- Add the `depends_on` compose property in order to wait for kafka topics initialization before starting. It is not mandatory but avoid initial disconnection problems.
-- Append your topic to the `command` compose property of the alarm-logger service (comma separated list). If the `-topics <topics>` attribute is not present add it.
+- Add the `depends_on` compose property in order to wait for kafka topics initialization before starting. Here how the property should be:
+  ```
+  depends_on:
+    broker:
+      condition: service_healthy
+  ```
+  It is not mandatory but avoid initial disconnection problems.
+- Append your topic to `-topics` attribute of the `command` compose property of the alarm-logger service (as a comma separated list). If the `-topics <topics>` attribute is not present add it.
 - Add a new folder (named as your topic) inside `xml` folder, place there your xml configuration and include in the alarm-server volume only that folder if you do not want to.
 - Add the new topic to **org.phoebus.applications.alarm/config_names** in the `settings.ini` of your client.
+- Add to the `KAFKA_CREATE_TOPICS` the necessary topics: **\<topic>**, **\<topic>Talk** and **\<topic>Command**.
+  Here an example:
+  ```
+  "<topic>:1:1:compact --config=segment.ms=10000 --config=min.cleanable.dirty.ratio=0.01 --config=min.compaction.lag.ms=1000, \
+  <topic>Command:1:1:delete --config=segment.ms=10000 --config=min.cleanable.dirty.ratio=0.01 --config=min.compaction.lag.ms=1000 \
+  --config=retention.ms=20000 --config=delete.retention.ms=1000 --config=file.delete.delay.ms=1000, \
+  <topic>Talk:1:1:delete --config=segment.ms=10000 --config=min.cleanable.dirty.ratio=0.01 --config=min.compaction.lag.ms=1000 \
+  --config=retention.ms=20000 --config=delete.retention.ms=1000 --config=file.delete.delay.ms=1000"
+  ```
+  You can create them manually using the dedicated script (see [Add and delete topics to Kafka](#add-and-delete-topics-to-kafka)).
 - If necessary, import your configuration when the service is up (see [Import XML configuration](#import-xml-configuration)).
 
 ## Add and delete topics to Kafka

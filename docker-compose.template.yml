@@ -33,8 +33,12 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
       KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS: 300000
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_CREATE_TOPICS:
+        "accelerator:1:1:compact --config=segment.ms=10000 --config=min.cleanable.dirty.ratio=0.01 --config=min.compaction.lag.ms=1000, \
+        acceleratorCommand:1:1:delete --config=segment.ms=10000 --config=min.cleanable.dirty.ratio=0.01 --config=min.compaction.lag.ms=1000 --config=retention.ms=20000 --config=delete.retention.ms=1000 --config=file.delete.delay.ms=1000, \
+        acceleratorTalk:1:1:delete --config=segment.ms=10000 --config=min.cleanable.dirty.ratio=0.01 --config=min.compaction.lag.ms=1000 --config=retention.ms=20000 --config=delete.retention.ms=1000 --config=file.delete.delay.ms=1000"
     volumes:
       - kafka-data:/var/lib/kafka/data
     healthcheck:
@@ -44,24 +48,12 @@ services:
       timeout: 10s
       retries: 10
 
-  init-kafka:
-    image: confluentinc/cp-kafka:7.3.2
-    container_name: init-kafka
-    depends_on:
-      broker:
-        condition: service_healthy
-    entrypoint: [ '/bin/sh', '-c' ]
-    command: 
-      - "sh create_topics.sh accelerator"
-    volumes:
-      - ./scripts/create_topics.sh:/home/appuser/create_topics.sh:ro
-
   alarm-server:
     image: giosava94/phoebus-alarm-server:4.7.1
     container_name: alarm-server
     depends_on:
-      init-kafka:
-        condition: service_completed_successfully
+      broker:
+        condition: service_healthy
     command: -noshell -config accelerator -server localhost:9092
     volumes:
       - ./xml:/alarm-server/xml
