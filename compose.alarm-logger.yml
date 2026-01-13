@@ -1,0 +1,8 @@
+version: '3'
+services:
+  alarm-logger:
+    image: baltig.infn.it:4567/gsavares/docker-phoebus-alarm/alarm-logger
+    container_name: alarm-logger
+    ports:
+      - "8080:8080"
+    command: java -jar /alarm-logger/service-alarm-logger.jar -noshell

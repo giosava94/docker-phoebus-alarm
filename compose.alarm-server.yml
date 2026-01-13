@@ -1,0 +1,9 @@
+version: '3'
+services:
+  alarm-server:
+    image: baltig.infn.it:4567/gsavares/docker-phoebus-alarm/alarm-server
+    container_name: alarm-server
+    command: java -jar /alarm-server/service-alarm-server.jar -noshell
+    volumes:
+      - ./xml:/alarm-server/xml
+    network_mode: host

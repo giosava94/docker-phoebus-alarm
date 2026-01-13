@@ -1,8 +1,0 @@
-version: '3'
-services:
-  alarm-logger:
-    image: giosava94/phoebus-alarm-logger:4.7.1
-    container_name: alarm-logger
-    ports:
-      - "8080:8080"
-    command: -noshell
