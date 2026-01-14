@@ -23,4 +23,5 @@ FROM amazoncorretto:${JAVA_VERSION}-alpine AS alarm-logger
 ARG PHOEBUS_VERSION=4.7.1
 WORKDIR /alarm-logger
 COPY --from=build /phoebus/services/alarm-logger/target/service-alarm-logger-${PHOEBUS_VERSION}.jar /alarm-logger/service-alarm-logger.jar
+EXPOSE 8080
 CMD ["java", "-jar", "/alarm-logger/service-alarm-logger.jar", "-help"]
